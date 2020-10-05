@@ -310,7 +310,7 @@ resource "aws_sns_topic" "webapp-production-autoscaling-alert-topic" {
 
 #Creating the SNS Subscription for getting notification regarding auto-scaling actions.
 resource "aws_sns_topic_subscription" "webapp-production-autoscaling-sms-subscription" {
-  endpoint = "+8983834188"
+  endpoint = "+123456789" #Add in the mobile number.
   protocol = "sms"
   topic_arn = aws_sns_topic.webapp-production-autoscaling-alert-topic.arn
 }
