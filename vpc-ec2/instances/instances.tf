@@ -276,7 +276,7 @@ resource "aws_autoscaling_group" "ec2-public-autoscaling-group" {
 resource "aws_autoscaling_policy" "webapp-production-scaling-policy" {
   autoscaling_group_name = aws_autoscaling_group.ec2-public-autoscaling-group.name
   name = "Production-WebAPP-AutoScaling-Policy"
-  policy_type = "TargetTrackingPolicy"
+  policy_type = "TargetTrackingScaling"
   min_adjustment_magnitude = 1
 
   target_tracking_configuration {
@@ -291,7 +291,7 @@ resource "aws_autoscaling_policy" "webapp-production-scaling-policy" {
 resource "aws_autoscaling_policy" "backend-production-scaling-policy" {
   autoscaling_group_name = aws_autoscaling_group.ec2-private-auto-scaling-group.name
   name = "Production-Backend-AutoScaling-Policy"
-  policy_type = "TargetTrackingPolicy"
+  policy_type = "TargetTrackingScaling"
   min_adjustment_magnitude = 1
 
   target_tracking_configuration {
