@@ -45,7 +45,7 @@ resource "aws_security_group" "ec2-private-security-group" {
     from_port = 0
     protocol = "-1"
     to_port = 0
-    cidr_blocks = [aws_security_group.ec2-public-security-group.id]
+    security_groups = [aws_security_group.ec2-public-security-group.id]
   }
 
   ingress {
