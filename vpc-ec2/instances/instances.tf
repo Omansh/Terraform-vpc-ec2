@@ -85,6 +85,7 @@ resource "aws_security_group" "elb-security-group" {
   }
 }
 
+#Creating an EC2 IAM Role
 resource "aws_iam_role" "ec2-iam-role" {
   name="EC2-IAM-ROLE"
   assume_role_policy = <<EOF
@@ -93,7 +94,7 @@ resource "aws_iam_role" "ec2-iam-role" {
   "Statement":
   [
     {
-      "Effect": "Allow"
+      "Effect": "Allow",
       "Principal": {
         "Service": ["ec2.amazonaws.com", "application-autoscaling.amazonaws.com"]
       },
@@ -104,6 +105,7 @@ resource "aws_iam_role" "ec2-iam-role" {
 EOF
 }
 
+#Creating the ec2-IAM policy and attaching it to the ec2-IAM Role created above.
 resource "aws_iam_role_policy" "ec2-iam-role-policy" {
   name = "EC2-IAM-Policy"
   role = aws_iam_role.ec2-iam-role.id
@@ -113,11 +115,11 @@ resource "aws_iam_role_policy" "ec2-iam-role-policy" {
   "Statement":
   [
     {
-      "Effect": "Allow"
+      "Effect": "Allow",
       "Action":
       [
         "ec2:*",
-        "elasticloadbalancing:*"
+        "elasticloadbalancing:*",
         "cloudwatch:*"
         "logs:*"
       ],
@@ -270,3 +272,55 @@ resource "aws_autoscaling_group" "ec2-public-autoscaling-group" {
   }
 }
 
+#Creating auto scaling policy for public EC2 instances
+resource "aws_autoscaling_policy" "webapp-production-scaling-policy" {
+  autoscaling_group_name = aws_autoscaling_group.ec2-public-autoscaling-group.name
+  name = "Production-WebAPP-AutoScaling-Policy"
+  policy_type = "TargetTrackingPolicy"
+  min_adjustment_magnitude = 1
+
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+    target_value = 80.0
+  }
+}
+
+#Creating auto scaling policy for private ec2 instances
+resource "aws_autoscaling_policy" "backend-production-scaling-policy" {
+  autoscaling_group_name = aws_autoscaling_group.ec2-private-auto-scaling-group.name
+  name = "Production-Backend-AutoScaling-Policy"
+  policy_type = "TargetTrackingPolicy"
+  min_adjustment_magnitude = 1
+
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+    target_value = 80.0
+  }
+}
+
+#Creating SNS Topic for Auto Scaling Notification
+resource "aws_sns_topic" "webapp-production-autoscaling-alert-topic" {
+  display_name = "WebApp-AutoScaling-Topic"
+  name = "WebApp-AutoScaling-Topic"
+}
+
+#Creating the SNS Subscription for getting notification regarding auto-scaling actions.
+resource "aws_sns_topic_subscription" "webapp-production-autoscaling-sms-subscription" {
+  endpoint = "+8983834188"
+  protocol = "sms"
+  topic_arn = aws_sns_topic.webapp-production-autoscaling-alert-topic.arn
+}
+
+resource "aws_autoscaling_notification" "webapp-autoscaling-notification" {
+  group_names = [aws_autoscaling_group.ec2-public-autoscaling-group.name]
+  notifications = [
+    "autoscaling:EC2_INSTANCE_LAUNCH",
+    "autoscaling:EC2_INSTANCE_TERMINATE",
+    "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+  ]
+  topic_arn = aws_sns_topic.webapp-production-autoscaling-alert-topic.arn
+}
