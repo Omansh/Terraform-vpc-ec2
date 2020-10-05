@@ -120,7 +120,7 @@ resource "aws_iam_role_policy" "ec2-iam-role-policy" {
       [
         "ec2:*",
         "elasticloadbalancing:*",
-        "cloudwatch:*"
+        "cloudwatch:*",
         "logs:*"
       ],
       "Resource": "*"
@@ -150,7 +150,7 @@ data "aws_ami" "launch-configuration-ami" {
 
 #Creating Launch configuration for private EC2
 resource "aws_launch_configuration" "ec2-private-launch-configuration" {
-  image_id = data.aws_ami.launch-configuration-ami.id
+  image_id = "ami-0e306788ff2473ccb"
   instance_type = var.ec2_instance_type
   key_name = var.key_pair_name
   associate_public_ip_address = false
@@ -162,7 +162,7 @@ resource "aws_launch_configuration" "ec2-private-launch-configuration" {
 
 #Creating Launch Configuration for public EC2
 resource "aws_launch_configuration" "ec2-public-launch-configuration" {
-  image_id = data.aws_ami.launch-configuration-ami.id
+  image_id = "ami-0e306788ff2473ccb"
   instance_type = var.ec2_instance_type
   key_name = var.key_pair_name
   associate_public_ip_address = true
