@@ -131,7 +131,7 @@ resource "aws_nat_gateway" "nat-gw" {
   tags = {
     Name = "Production-NAT-GW"
   }
-  depends_on = ["aws_eip.elastic-ip-for-nat-gw"]
+  depends_on = [aws_eip.elastic-ip-for-nat-gw]
 }
 
 resource "aws_route" "nat-gw-route" {
